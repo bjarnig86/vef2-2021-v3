@@ -1,0 +1,13 @@
+1. partur
+  Að búa til paging, skipta niður færslum
+  Offset - sql syntax (50) (nr. síðu -1 *50)
+  limit - sql hversu margar færslur eru birtar
+    (síða 1 - offset 0 og limit 50)
+    (síða 2 - offset 50 og limit 50)
+
+
+  - gera fall sem heldur utan um hvaða síðu maður er á og hvaða síður hún linkar á
+          og allar paging upplýsingar
+
+seinni partur:
+  login hluti, geta deletað og skráð sig inn - cruxið
