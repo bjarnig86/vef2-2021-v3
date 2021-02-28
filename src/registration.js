@@ -3,8 +3,10 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import xss from 'xss';
+import dotenv from 'dotenv';
+import { list, insert, listCount } from './db.js';
 
-import { list, insert } from './db.js';
+dotenv.config();
 
 export const router = express.Router();
 
@@ -27,12 +29,46 @@ async function index(req, res) {
     comment: '',
   };
 
-  const registrations = await list();
+  let { offset = 0, limit = 50 } = req.query;
+  offset = Number(offset);
+  limit = Number(limit);
+  const isUser = false;
+
+  const count = await listCount();
+  const registrations = await list(offset, limit);
+
+  const result = {
+    links: {
+      self: {
+        href: `/?offset=${offset}&limit=${limit}`,
+      },
+    },
+    items: registrations,
+    offset,
+    limit,
+  };
+
+  if (offset > 0) {
+    result.links.prev = {
+      href: `/?offset=${offset - limit}&limit=${limit}`,
+    };
+  } else {
+    result.links.prev = { href: '' };
+  }
+
+  if (registrations.length <= limit) {
+    result.links.next = {
+      href: `/?offset=${Number(offset) + limit}&limit=${limit}`,
+    };
+  }
 
   res.render('index', {
     errors,
     formData,
     registrations,
+    isUser,
+    count: count[0].count,
+    result,
     title: 'Undirskrifarlisti',
   });
 }
@@ -70,6 +106,10 @@ const sanitizationMiddleware = [
 
 async function validationCheck(req, res, next) {
   const { name, nationalId, comment, anonymous } = req.body;
+  let { offset = 0, limit = 50 } = req.query;
+  offset = Number(offset);
+  limit = Number(limit);
+  const isUser = false;
 
   const formData = {
     name,
@@ -77,15 +117,46 @@ async function validationCheck(req, res, next) {
     comment,
     anonymous,
   };
-  const registrations = await list();
+
+  const registrations = await list(offset, limit);
+  const count = await listCount();
 
   const validation = validationResult(req);
+
+  const result = {
+    links: {
+      self: {
+        href: `/?offset=${offset}&limit=${limit}`,
+      },
+    },
+    items: registrations,
+    offset,
+    limit,
+  };
+
+  if (offset > 0) {
+    result.links.prev = {
+      href: `/?offset=${offset - limit}&limit=${limit}`,
+    };
+  } else {
+    result.links.prev = { href: '' };
+  }
+
+  if (registrations.length <= limit) {
+    result.links.next = {
+      href: `/?offset=${Number(offset) + limit}&limit=${limit}`,
+    };
+  }
 
   if (!validation.isEmpty()) {
     return res.render('index', {
       formData,
       errors: validation.errors,
       registrations,
+      isUser,
+      count: count[0].count,
+      result,
+      title: 'Undirskriftalisti',
     });
   }
 
@@ -126,5 +197,5 @@ router.post(
   xssSanitizationMiddleware,
   catchErrors(validationCheck),
   sanitizationMiddleware,
-  catchErrors(register)
+  catchErrors(register),
 );

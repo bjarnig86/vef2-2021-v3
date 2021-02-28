@@ -31,6 +31,20 @@ export async function query(_query, values = []) {
 }
 
 // TODO rest af föllum
+export async function listCount() {
+  let result = [];
+
+  try {
+    const queryResult = await query('SELECT COUNT(*) AS count FROM signatures');
+    if (queryResult && queryResult.rows) {
+      result = queryResult.rows;
+    }
+  } catch (error) {
+    console.error('Kann ekki að telja', error);
+  }
+
+  return result;
+}
 
 /**
  * Insert a single registration into the registration table.
@@ -63,23 +77,55 @@ export async function insert({ name, nationalId, comment, anonymous } = {}) {
   return success;
 }
 
+export async function deleteUser(id) {
+  const client = await pool.connect();
+  let result = [];
+
+  try {
+    const q = 'DELETE FROM signatures WHERE id=$1';
+    const queryResult = client.query(q, [id]);
+    result = queryResult;
+  } catch (error) {
+    console.error(error);
+  }
+
+  return result;
+}
+
 /**
  * List all registrations from the registration table.
  *
  * @returns {Promise<Array<list>>} Promise, resolved to array of all registrations.
  */
-export async function list() {
+export async function list(offset, limit) {
+  const client = await pool.connect();
   let result = [];
+
   try {
-    const queryResult = await query(
-      'SELECT name, nationalId, comment, anonymous, signed FROM signatures ORDER BY signed DESC',
-    );
+    const q =
+      'SELECT id, name, nationalId, comment, anonymous, signed FROM signatures ORDER BY signed DESC OFFSET $1 LIMIT $2';
+    const queryResult = await client.query(q, [offset, limit]);
 
     if (queryResult && queryResult.rows) {
       result = queryResult.rows;
     }
   } catch (e) {
     console.error('Error selecting signatures', e);
+  }
+
+  return result;
+}
+
+export async function getUsername() {
+  let result = [];
+
+  try {
+    const queryResult = await query('SELECT username FROM users');
+    if (queryResult && queryResult.rows) {
+      result = queryResult.rows;
+    }
+  } catch (error) {
+    console.error('Kann ekki að telja', error);
   }
 
   return result;

@@ -188,3 +188,31 @@ button:hover {
   word-break: break-all;
   overflow-wrap: anywhere;
 }
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1em;
+}
+
+.count {
+  display: flex;
+  justify-content: center;
+  margin: 1em;
+}
+
+.delete-container {
+  flex-direction: column;
+  justify-content: center;
+}
+
+.delete-form {
+  border-bottom: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.delete-button {
+  margin-top: 0;
+  font-size: 1em;
+}

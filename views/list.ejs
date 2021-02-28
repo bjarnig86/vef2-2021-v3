@@ -1,6 +1,6 @@
 <section class="registrations">
   <h2 class="registrations__title">Undirskriftir</h2>
-
+  <p class="count">Fjöldi undirskrifta: <%= count %></p>
   <% if (registrations.length === 0) { %>
     <p class="registrations__empty">Engar undirskriftir.</p>
   <% } else { %>
@@ -9,16 +9,41 @@
         <th>Dags</th>
         <th>Nafn</th>
         <th>Athugasemd</th>
+        <% if (isUser) { %>
+          <th>Eyða</th>
+        <% } %>
       </tr>
       <% registrations.forEach((row) => { %>
         <tr>
           <td class="date"><%= formatDate(row.signed) %></td>
           <td class="name"><%= row.anonymous ? 'Nafnlaust' : row.name %></td>
           <td class="comment"><%= row.comment %></td>
+          <% if (isUser) { %>
+          <td class="delete-container">
+            <form class="delete-form" action="/delete" method="post">
+              <Button class="delete-button" name="delete" value="<%= row.id %>">Eyða</Button>
+            </form>
+          </td>
+          <% } %>
         </tr>
       <% }) %>
       </tr>
     </table>
   <% } %>
+  <div class="links">
+    <% if (result.offset > 0) { %>
+      <a href="<%- result.links.prev.href %> ">Fyrri síða</a>
+    <% } else { %>
+      <p>Fyrri síða</p>
+    <% } %>
+    <% const num = Math.ceil((result.offset + 1)/result.limit); %>
+    <% const total = Math.ceil(count / result.limit); %>
+    <p>Síða <%= num  %>  af <%= total %></p>
+    <% if (total/num != 1) { %>
+      <a href="<%- result.links.next.href %>">Næsta síða</a>
+    <% } else { %>
+      <p>Næsta síða</p>
+    <% } %>
+  </div>
 </section>
 

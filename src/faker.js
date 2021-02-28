@@ -1,8 +1,7 @@
 import faker from 'faker';
-import { query } from './db.js';
 import { format } from 'date-fns';
+import { query } from './db.js';
 
-// eslint-disable-next-line no-plusplus
 export async function insertFakeData({
   name,
   nationalId,
@@ -31,13 +30,11 @@ export async function insertFakeData({
 }
 
 async function fakerData() {
-  for (let i = 0; i < 500; i++) {
+  for (let i = 0; i < 500; i += 1) {
     const name = faker.name.findName();
     const nationalId = Math.round(Math.random() * 1000000000 + 1000000000);
-
-    const chance = Math.random();
-    const comment = chance < 0.5 ? faker.lorem.sentence() : '';
-    const anonymous = chance < 0.5 ? 'off' : 'on';
+    const comment = Math.random() < 0.5 ? faker.lorem.sentence() : '';
+    const anonymous = Math.random() < 0.5 ? 'off' : 'on';
     const date = Date.now();
     const lastTwoWeeks = Math.round(Math.random() * 1209600000);
     const inLastTwoWeeks = date - lastTwoWeeks;
